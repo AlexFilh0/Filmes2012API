@@ -10,7 +10,7 @@ using Filmes2012API.Models;
 
 namespace Filmes2012API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class FilmeController : ControllerBase
     {
@@ -23,14 +23,16 @@ namespace Filmes2012API.Controllers
 
         // GET: api/Filme
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Filme>>> GetFilmes()
+        public async Task<ActionResult<IEnumerable<FilmeDTO>>> GetFilmes()
         {
-            return await _context.Filmes.ToListAsync();
+            return await _context.Filmes
+            .Select(x => FilmeToDTO(x))
+            .ToListAsync();
         }
 
         // GET: api/Filme/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Filme>> GetFilme(int id)
+        public async Task<ActionResult<FilmeDTO>> GetFilme(int id)
         {
             var filme = await _context.Filmes.FindAsync(id);
 
@@ -39,7 +41,7 @@ namespace Filmes2012API.Controllers
                 return NotFound();
             }
 
-            return filme;
+            return FilmeToDTO(filme);
         }
 
         // PUT: api/Filme/5
@@ -104,5 +106,15 @@ namespace Filmes2012API.Controllers
         {
             return _context.Filmes.Any(e => e.Id == id);
         }
+
+        private static FilmeDTO FilmeToDTO(Filme filme) =>
+        new FilmeDTO
+        {
+            Id = filme.Id,
+            Nome = filme.Nome,
+            Genero = filme.Genero,
+            Ano = filme.Ano,
+            Duracao = filme.Duracao
+        };
     }
 }
